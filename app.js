@@ -1,4 +1,4 @@
-import { default as galleryItems } from "./gallery-items.js";
+import galleryItems from "./gallery-items.js";
 const refs = {
   gallery: document.querySelector(".js-gallery"),
   lightbox: document.querySelector(".js-lightbox"),
@@ -8,17 +8,6 @@ const refs = {
 };
 refs.overlay.addEventListener("click", closeModal);
 refs.btn.addEventListener("click", closeModal);
-window.addEventListener("keydown", (event) => {
-  if (event.code === "Escape") {
-    closeModal();
-  }
-  if (event.code === "ArrowRight") {
-    next();
-  }
-  if (event.code === "ArrowLeft") {
-    previous();
-  }
-});
 galleryItems.forEach((item) => {
   const img = document.createElement("img");
   img.setAttribute("src", item.preview);
@@ -30,24 +19,17 @@ galleryItems.forEach((item) => {
 });
 const images = document.querySelectorAll(".gallery__image");
 const src = [];
-function next() {
+function NextPrev(param) {
   images.forEach((image, index) => {
     if (
       refs.lightboxImage.getAttribute("src") ===
       image.getAttribute("data-source")
     ) {
-      src.push(images[index + 1].getAttribute("data-source"));
-    }
-  });
-  refs.lightboxImage.setAttribute("src", src.splice(0).join(""));
-}
-function previous() {
-  images.forEach((image, index) => {
-    if (
-      refs.lightboxImage.getAttribute("src") ===
-      image.getAttribute("data-source")
-    ) {
-      src.push(images[index - 1].getAttribute("data-source"));
+      if (param === "next") {
+        src.push(images[index + 1].getAttribute("data-source"));
+      } else if (param === "previous") {
+        src.push(images[index - 1].getAttribute("data-source"));
+      }
     }
   });
   refs.lightboxImage.setAttribute("src", src.splice(0).join(""));
@@ -58,8 +40,22 @@ function openModal(event) {
     "src",
     event.target.getAttribute("data-source")
   );
+  window.addEventListener("keydown", keydownFunc);
 }
 function closeModal() {
   refs.lightbox.classList.remove("is-open");
+  refs.lightboxImage.src = "";
   refs.lightboxImage.removeAttribute("src");
+  window.removeEventListener("keydown", keydownFunc);
+}
+function keydownFunc(event) {
+  if (event.code === "Escape") {
+    closeModal();
+  }
+  if (event.code === "ArrowRight") {
+    NextPrev("next");
+  }
+  if (event.code === "ArrowLeft") {
+    NextPrev("previous");
+  }
 }
